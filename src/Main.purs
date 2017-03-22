@@ -2,14 +2,14 @@ module Main where
 
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Now (NOW, now)
-import DOM (DOM) as DOM
+import DOM (DOM)
 import Data.Array (cons, deleteBy)
-import Data.DateTime (DateTime, date, day, month, weekday, year)
+import Data.DateTime (DateTime, date, weekday)
 import Data.DateTime.Instant (toDateTime)
 import Data.Either (Either(..))
 import Data.Formatter.DateTime (formatDateTime)
 import Data.Item (Item, addDays, comming, due, nextRun)
-import Prelude (Unit, bind, map, show, unit, void, ($), (<>), (==))
+import Prelude (Unit, bind, map, show, unit, void, ($), (<<<), (<>), (==))
 import React (ReactElement)
 import React.DOM (button, div, h1, li, text, ul)
 import React.DOM.Props (className, onClick)
@@ -19,7 +19,7 @@ data Action = Done Item | NextDay
 
 type State = { heute :: DateTime, items :: Array Item }
 
-initialState :: DateTime -> State
+initialState :: DateTime → State
 initialState heute =
   { heute: heute
   , items: [ { text: "Papierabfuhr", executions: [], days: 14 }
@@ -43,7 +43,7 @@ render dispatch _ state _ =
         ]
   ]
 
-renderItem :: (Item -> Action) -> (Action -> EventHandler) -> State -> Item -> ReactElement
+renderItem :: (Item → Action) → (Action → EventHandler) → State → Item → ReactElement
 renderItem a dispatch state i =
   li [ onClick (\item -> dispatch $ a i), className "list-group-item" ]
      [ div [] [ text $ i.text <> show (map showAsDate i.executions)
@@ -51,12 +51,14 @@ renderItem a dispatch state i =
               ]
      ]
 
-formatDate :: DateTime -> String
-formatDate datetime = case formatDateTime "DD.MM.YYYY" datetime of
-                           Left r -> r
-                           Right e -> e
+formatDate :: DateTime → String
+formatDate = always <<< formatDateTime "DD.MM.YYYY"
 
-showAsDate :: DateTime -> String
+always :: Either String String → String
+always (Left e) = e
+always (Right r) = r
+
+showAsDate :: DateTime → String
 showAsDate datetime = (show $ weekday $ date datetime) <> ", " <> formatDate datetime
 
 performAction :: PerformAction _ State _ Action
@@ -74,7 +76,7 @@ performAction NextDay _ _ =
 spec :: Spec _ State _ Action
 spec = simpleSpec performAction render
 
-main :: forall e. Eff (dom :: DOM.DOM, now :: NOW | e) Unit
+main :: ∀ e. Eff ( dom ∷ DOM , now ∷ NOW | e ) Unit
 main = do
   nowInstant <- now
   let today = toDateTime nowInstant
