@@ -5,6 +5,7 @@ import Control.Monad.Eff.Now (NOW, now)
 import DOM (DOM)
 import Data.Array (cons, deleteBy)
 import Data.DateTime (DateTime, date, weekday)
+import Data.Date.Component (Weekday(..))
 import Data.DateTime.Instant (toDateTime)
 import Data.Either (Either(..))
 import Data.Formatter.DateTime (formatDateTime)
@@ -58,8 +59,17 @@ always :: Either String String → String
 always (Left e) = e
 always (Right r) = r
 
+translate :: Weekday → String
+translate Monday = "Montag"
+translate Tuesday = "Dienstag"
+translate Wednesday = "Mittwoch"
+translate Thursday = "Donnerstag"
+translate Friday = "Freitag"
+translate Saturday = "Samstag"
+translate Sunday = "Sonntag"
+
 showAsDate :: DateTime → String
-showAsDate datetime = (show $ weekday $ date datetime) <> ", " <> formatDate datetime
+showAsDate datetime = (translate $ weekday $ date datetime) <> ", " <> formatDate datetime
 
 performAction :: PerformAction _ State _ Action
 performAction (Done item) _ _ =
