@@ -7,16 +7,19 @@
     "output"
   ],
   "dependencies": {
-    "purescript-prelude": "^2.4.0",
+    "purescript-prelude": "^2.5.0",
     "purescript-console": "^2.0.0",
-    "purescript-thermite": "^3.2.1",
+    "purescript-lists": "^3.4.0",
+    "purescript-datetime": "^2.2.0",
+    "purescript-now": "^2.0.0",
+    "purescript-maybe": "^2.1.1",
+    "purescript-formatters": "^0.3.0",
+    "express": "^4.15.2",
+    "purescript-express": "^0.4.2",
+    "purescript-node-fs": "^3.0.0",
     "purescript-react-dom": "^2.0.0",
     "react": "^15.4.2",
-    "purescript-lists": "^3.4.0",
-    "purescript-datetime": "^2.1.0",
-    "purescript-now": "^2.0.0",
-    "purescript-maybe": "^2.0.1",
-    "purescript-formatters": "^0.2.0"
+    "purescript-thermite": "^3.2.1"
   },
   "devDependencies": {
     "purescript-psci-support": "^2.0.0"
