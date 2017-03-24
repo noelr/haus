@@ -20,12 +20,12 @@ comming :: DateTime → Array Item → Array Item
 comming at items = filter (\i -> (nextRun at i) > at) items
 
 nextRun :: DateTime → Item → DateTime
-nextRun default item =
+nextRun today item =
   case item.config of
-       Weekly wd -> if (weekday $ DateTime.date default) == wd then default else addDays (daysTill (weekday $ DateTime.date default) wd) default
+       Weekly wd -> if (weekday $ DateTime.date today) == wd then today else addDays (daysTill (weekday $ DateTime.date today) wd) today
        Days d ->
          case head item.executions of
-           Nothing -> default
+           Nothing -> today
            Just date -> addDays d date
 
 addDays :: Int → DateTime → DateTime
