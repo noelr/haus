@@ -4,12 +4,11 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Now (NOW, now)
 import DOM (DOM)
 import Data.Array (cons, deleteBy)
-import Data.DateTime (DateTime, date, weekday)
-import Data.Date.Component (Weekday(..))
+import Data.DateTime (DateTime, date, Weekday(..), weekday)
 import Data.DateTime.Instant (toDateTime)
 import Data.Either (Either(..))
 import Data.Formatter.DateTime (formatDateTime)
-import Data.Item (Item, addDays, comming, due, nextRun)
+import Data.Item (Item, ItemConfig(..), addDays, comming, due, nextRun)
 import Prelude (Unit, bind, map, show, unit, void, ($), (<<<), (<>), (==))
 import React (ReactElement)
 import React.DOM (button, div, h1, li, text, ul)
@@ -23,8 +22,8 @@ type State = { heute :: DateTime, items :: Array Item }
 initialState :: DateTime → State
 initialState heute =
   { heute: heute
-  , items: [ { text: "Papierabfuhr", executions: [], days: 14 }
-           , { text: "Schlange", executions: [], days: 18 }
+  , items: [ { text: "Papierabfuhr", executions: [], config: Weekly Tuesday }
+           , { text: "Schlange", executions: [], config: Days 18 }
            ]
   }
 
