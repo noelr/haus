@@ -12,4 +12,4 @@ pulp browserify --to main.js -O
 # Run
 ```sh
 pulp run --main Server
-```sh
+```
