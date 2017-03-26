@@ -1,10 +1,8 @@
 module Data.Item where
 
 import Data.Array (cons, deleteBy, filter, head, nubBy)
-import Data.DateTime (DateTime, Weekday, adjust, date, weekday, date)
-import Data.DateTime (date) as DateTime
+import Data.DateTime (DateTime, Weekday, adjust, weekday, date)
 import Data.Enum (fromEnum)
-import Data.Eq (class Eq)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Ord ((<=), (>), (<))
@@ -23,7 +21,7 @@ comming at items = filter (\i -> (nextRun at i) > at) items
 nextRun :: DateTime → Item → DateTime
 nextRun today item =
   case item.config of
-       Weekly wd -> if (weekday $ DateTime.date today) == wd then today else addDays (daysTill (weekday $ DateTime.date today) wd) today
+       Weekly wd -> if (weekday $ date today) == wd then today else addDays (daysTill (weekday $ date today) wd) today
        Days d ->
          case head item.executions of
            Nothing -> today
