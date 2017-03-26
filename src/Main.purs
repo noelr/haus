@@ -3,12 +3,14 @@ module Main where
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Now (NOW, now)
 import DOM (DOM)
-import Data.DateTime (DateTime, date, Weekday(..), weekday)
+import Data.Bounded (bottom)
+import Data.Date (Date)
+import Data.DateTime (DateTime(..), Weekday(..), date, weekday)
 import Data.DateTime.Instant (toDateTime)
 import Data.Either (Either(..))
 import Data.Formatter.DateTime (formatDateTime)
 import Data.Item (Item, ItemConfig(..), addDays, comming, due, nextRun, setDone)
-import Prelude (Unit, bind, map, show, unit, void, ($), (<<<), (<>))
+import Prelude (Unit, bind, map, show, unit, void, ($), (<>))
 import React (ReactElement)
 import React.DOM (button, div, h1, li, text, ul)
 import React.DOM.Props (className, onClick)
@@ -16,9 +18,9 @@ import Thermite (EventHandler, PerformAction, Render, Spec, cotransform, default
 
 data Action = Done Item | NextDay
 
-type State = { heute :: DateTime, items :: Array Item }
+type State = { heute :: Date, items :: Array Item }
 
-initialState :: DateTime → State
+initialState :: Date → State
 initialState heute =
   { heute: heute
   , items: [ { text: "Papierabfuhr", executions: [], config: Weekly Tuesday }
@@ -50,8 +52,8 @@ renderItem a dispatch state i =
               ]
      ]
 
-formatDate :: DateTime → String
-formatDate = always <<< formatDateTime "DD.MM.YYYY"
+formatDate :: Date → String
+formatDate d = always $ formatDateTime "DD.MM.YYYY" (DateTime d bottom)
 
 always :: Either String String → String
 always (Left e) = e
@@ -66,8 +68,8 @@ translate Friday = "Freitag"
 translate Saturday = "Samstag"
 translate Sunday = "Sonntag"
 
-showAsDate :: DateTime → String
-showAsDate datetime = (translate $ weekday $ date datetime) <> ", " <> formatDate datetime
+showAsDate :: Date → String
+showAsDate date = (translate $ weekday $ date) <> ", " <> formatDate date
 
 performAction :: PerformAction _ State _ Action
 performAction (Done item) _ _ =
@@ -85,5 +87,5 @@ spec = simpleSpec performAction render
 main :: ∀ e. Eff ( dom ∷ DOM , now ∷ NOW | e ) Unit
 main = do
   nowInstant <- now
-  let today = toDateTime nowInstant
+  let today = date $ toDateTime nowInstant
   defaultMain spec (initialState today) unit

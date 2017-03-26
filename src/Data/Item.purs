@@ -1,34 +1,36 @@
 module Data.Item where
 
 import Data.Array (cons, deleteBy, filter, head, nubBy)
-import Data.DateTime (DateTime, Weekday, adjust, weekday, date)
+import Data.Bounded (bottom)
+import Data.Date (Date, Weekday, weekday)
+import Data.DateTime (DateTime(..), adjust, date) as DateTime
 import Data.Enum (fromEnum)
 import Data.Int (toNumber)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Ord ((<=), (>), (<))
 import Data.Time.Duration (Days(..)) as Duration
 import Prelude (($), (-), (+), (==))
 
 data ItemConfig = Weekly Weekday | Days Int
-type Item = { text :: String, executions :: Array DateTime, config :: ItemConfig }
+type Item = { text :: String, executions :: Array Date, config :: ItemConfig }
 
-due :: DateTime → Array Item → Array Item
+due :: Date → Array Item → Array Item
 due at items = filter (\i -> (nextRun at i) <= at) items
 
-comming :: DateTime → Array Item → Array Item
+comming :: Date → Array Item → Array Item
 comming at items = filter (\i -> (nextRun at i) > at) items
 
-nextRun :: DateTime → Item → DateTime
+nextRun :: Date → Item → Date
 nextRun today item =
   case item.config of
-       Weekly wd -> if (weekday $ date today) == wd then today else addDays (daysTill (weekday $ date today) wd) today
+       Weekly wd -> if (weekday $ today) == wd then today else addDays (daysTill (weekday today) wd) today
        Days d ->
          case head item.executions of
            Nothing -> today
            Just date -> addDays d date
 
-addDays :: Int → DateTime → DateTime
-addDays days date = fromMaybe date $ adjust (Duration.Days (toNumber days)) date
+addDays :: Int → Date → Date
+addDays days dt = maybe dt DateTime.date $ DateTime.adjust (Duration.Days (toNumber days)) (DateTime.DateTime dt bottom)
 
 daysTill :: Weekday → Weekday → Int
 daysTill from target =
@@ -38,10 +40,10 @@ daysTill from target =
   where
     toITatget t f = if t < f then t + 7 else t
 
-setDone :: DateTime → Item → Array Item → Array Item
+setDone :: Date → Item → Array Item → Array Item
 setDone heute item items =
   cons (item { executions = dateUniq (cons heute item.executions) }) others
     where
       others = deleteBy (\a b -> a.text == b.text) item items
-      dateUniq :: Array DateTime → Array DateTime
-      dateUniq a = nubBy (\d1 d2 -> (date d1) == (date d2)) a
+      dateUniq :: Array Date → Array Date
+      dateUniq a = nubBy (\d1 d2 -> d1 == d2) a
