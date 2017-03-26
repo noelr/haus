@@ -3,13 +3,12 @@ module Main where
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Now (NOW, now)
 import DOM (DOM)
-import Data.Array (cons, deleteBy)
 import Data.DateTime (DateTime, date, Weekday(..), weekday)
 import Data.DateTime.Instant (toDateTime)
 import Data.Either (Either(..))
 import Data.Formatter.DateTime (formatDateTime)
-import Data.Item (Item, ItemConfig(..), addDays, comming, due, nextRun)
-import Prelude (Unit, bind, map, show, unit, void, ($), (<<<), (<>), (==))
+import Data.Item (Item, ItemConfig(..), addDays, comming, due, nextRun, setDone)
+import Prelude (Unit, bind, map, show, unit, void, ($), (<<<), (<>))
 import React (ReactElement)
 import React.DOM (button, div, h1, li, text, ul)
 import React.DOM.Props (className, onClick)
@@ -75,9 +74,7 @@ performAction (Done item) _ _ =
   void $ cotransform done
     where
       done state = do
-        let others = deleteBy (\a b -> a.text == b.text) item state.items
-            updated = cons (item { executions = cons state.heute item.executions }) others
-        state { items = updated }
+        state { items = setDone state.heute item state.items }
 performAction NextDay _ _ =
   void $ cotransform $
     \state -> state { heute = addDays 1 state.heute }

@@ -1,9 +1,10 @@
 module Data.Item where
 
-import Data.Array (filter, head)
-import Data.DateTime (DateTime, Weekday, adjust, weekday)
+import Data.Array (cons, deleteBy, filter, head, nubBy)
+import Data.DateTime (DateTime, Weekday, adjust, date, weekday, date)
 import Data.DateTime (date) as DateTime
 import Data.Enum (fromEnum)
+import Data.Eq (class Eq)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Ord ((<=), (>), (<))
@@ -38,3 +39,11 @@ daysTill from target =
   in target' - from'
   where
     toITatget t f = if t < f then t + 7 else t
+
+setDone :: DateTime → Item → Array Item → Array Item
+setDone heute item items =
+  cons (item { executions = dateUniq (cons heute item.executions) }) others
+    where
+      others = deleteBy (\a b -> a.text == b.text) item items
+      dateUniq :: Array DateTime → Array DateTime
+      dateUniq a = nubBy (\d1 d2 -> (date d1) == (date d2)) a
