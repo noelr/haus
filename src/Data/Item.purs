@@ -1,17 +1,17 @@
 module Data.Item where
 
-import Data.Array (cons, deleteBy, filter, head, nubBy)
+import Data.Array (cons, deleteBy, filter, head, nubBy, sort)
 import Data.Bounded (bottom)
 import Data.Date (Date, Weekday, weekday)
 import Data.DateTime (DateTime(..), adjust, date) as DateTime
 import Data.Enum (fromEnum)
 import Data.Int (toNumber)
-import Data.Maybe (Maybe(..), maybe)
-import Data.Ord ((<=), (>), (<))
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Ord ((<=), (>), (>=), (<))
 import Data.Time.Duration (Days(..)) as Duration
 import Prelude (($), (-), (+), (==))
 
-data ItemConfig = Weekly Weekday | Days Int
+data ItemConfig = Weekly Weekday | Days Int | Dates (Array Date)
 type Item = { text :: String, executions :: Array Date, config :: ItemConfig }
 
 due :: Date → Array Item → Array Item
@@ -24,6 +24,7 @@ nextRun :: Date → Item → Date
 nextRun today item =
   case item.config of
        Weekly wd -> if (weekday $ today) == wd then today else addDays (daysTill (weekday today) wd) today
+       Dates dates -> fromMaybe today $ head $ sort $ filter (\d -> d >= today) dates
        Days d ->
          case head item.executions of
            Nothing -> today

@@ -25,6 +25,7 @@ initialState heute =
   { heute: heute
   , items: [ { text: "Papierabfuhr", executions: [], config: Weekly Tuesday }
            , { text: "Schlange", executions: [], config: Days 18 }
+           , { text: "Grünabfuhr", executions: [], config: Dates [(addDays 14 heute), (addDays 28 heute), (addDays 42 heute)] }
            ]
   }
 
